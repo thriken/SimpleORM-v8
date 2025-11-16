@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleORM - PHP ORM框架</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h2 {
+            color: #667eea;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .feature {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .feature h3 {
+            color: #764ba2;
+            margin-top: 0;
+        }
+        pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', monospace;
+            background: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+        .installation-steps {
+            counter-reset: step-counter;
+            list-style: none;
+            padding: 0;
+        }
+        .installation-steps li {
+            counter-increment: step-counter;
+            margin-bottom: 1rem;
+            padding-left: 2.5rem;
+            position: relative;
+        }
+        .installation-steps li:before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #667eea;
+            color: white;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SimpleORM</h1>
+        <div class="subtitle">一个轻量级的PHP ORM框架，适用于MySQL 5.5+</div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>简介</h2>
+            <p>SimpleORM是一个简单易用的PHP ORM（对象关系映射）框架，专为MySQL 5.5+设计。它提供了现代Web开发所需的核心功能，同时保持了代码的简洁性和可扩展性。</p>
+            <p>通过SimpleORM，您可以轻松地进行数据库操作，而无需编写复杂的SQL语句。</p>
+        </div>
+
+        <div class="card">
+            <h2>环境要求</h2>
+            <ul>
+                <li>PHP 8.0 或更高版本</li>
+                <li>MySQL 5.5 或更高版本</li>
+                <li>Nginx 或 Apache</li>
+                <li>PDO扩展</li>
+                <li>Composer（推荐）</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>安装步骤</h2>
+        <ol class="installation-steps">
+            <li>
+                <strong>克隆项目</strong>
+                <pre>git clone &lt;repository-url&gt;
+cd simple-orm</pre>
+            </li>
+            <li>
+                <strong>使用Composer安装依赖</strong>
+                <pre>composer install</pre>
+            </li>
+            <li>
+                <strong>配置数据库</strong>
+                <p>在您的项目中创建数据库配置文件：</p>
+                <pre>&lt;?php
+use SimpleORM\Database\DatabaseManager;
+
+$config = [
+    'default' => 'mysql',
+    'connections' => [
+        'mysql' => [
+            'host' => 'localhost',
+            'database' => 'your_database',
+            'username' => 'your_username',
+            'password' => 'your_password',
+            'charset' => 'utf8mb4',
+        ]
+    ]
+];
+
+$dbManager = new DatabaseManager($config);</pre>
+            </li>
+        </ol>
+    </div>
+
+    <div class="features">
+        <div class="feature">
+            <h3>🚀 数据库连接管理</h3>
+            <p>支持多数据库连接配置，使用PDO预处理语句防止SQL注入，并提供完整的事务支持。</p>
+        </div>
+        <div class="feature">
+            <h3>📋 Active Record模式</h3>
+            <p>模型对象直接映射数据库记录，提供基础的CRUD操作和时间戳自动维护功能。</p>
+        </div>
+        <div class="feature">
+            <h3>🔗 查询构建器</h3>
+            <p>提供链式调用的查询接口，支持WHERE、ORDER BY、LIMIT、JOIN等条件和聚合函数。</p>
+        </div>
+        <div class="feature">
+            <h3>💞 关系映射</h3>
+            <p>支持一对一、一对多、多对一关系映射，轻松处理模型间的关联数据。</p>
+        </div>
+        <div class="feature">
+            <h3>🔄 数据库迁移</h3>
+            <p>支持数据库结构版本控制，方便团队协作和部署。</p>
+        </div>
+        <div class="feature">
+            <h3>📦 自动加载</h3>
+            <p>符合PSR-4标准的自动加载机制，支持Composer集成。</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>快速开始</h2>
+        
+        <h3>1. 创建模型</h3>
+        <pre>&lt;?php
+use SimpleORM\Model\Model;
+
+class User extends Model
+{
+    protected string $table = 'users';
+    protected bool $timestamps = true;
+}
+
+// 设置模型的数据库管理器
+User::setDatabaseManager($dbManager);</pre>
+
+        <h3>2. 基本操作</h3>
+        <pre>// 创建记录
+$user = User::create([
+    'name' => 'John Doe',
+    'email' => 'john@example.com'
+]);
+
+// 查询所有记录
+$users = User::all();
+
+// 根据ID查找
+$user = User::find(1);
+
+// 条件查询
+$users = User::query()
+    ->where('name', 'John')
+    ->orderBy('created_at', 'desc')
+    ->get();
+
+// 更新记录
+$user->name = 'Jane Doe';
+$user->save();
+
+// 删除记录
+$user->delete();</pre>
+
+        <h3>3. 关系映射</h3>
+        <pre>class Post extends Model
+{
+    protected string $table = 'posts';
+    
+    // 定义与User模型的关系
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+
+// 使用关系
+$post = Post::find(1);
+echo $post->user->name;</pre>
+
+        <h3>4. 数据库迁移</h3>
+        <pre>use SimpleORM\Migration\Migrator;
+
+// 创建迁移器
+$migrator = new Migrator($dbManager);
+
+// 运行迁移
+$migrator->run(__DIR__ . '/migrations');
+
+// 回滚迁移
+$migrator->rollback(__DIR__ . '/migrations');</pre>
+    </div>
+
+    <div class="card">
+        <h2>API参考</h2>
+        
+        <h3>模型方法</h3>
+        <ul>
+            <li><code>find($id)</code>: 根据主键查找记录</li>
+            <li><code>all()</code>: 获取所有记录</li>
+            <li><code>create($attributes)</code>: 创建新记录</li>
+            <li><code>save()</code>: 保存模型</li>
+            <li><code>delete()</code>: 删除记录</li>
+        </ul>
+
+        <h3>查询构建器方法</h3>
+        <ul>
+            <li><code>where($column, $operator, $value)</code>: 添加WHERE条件</li>
+            <li><code>orderBy($column, $direction)</code>: 添加排序</li>
+            <li><code>limit($limit)</code>: 限制结果数量</li>
+            <li><code>select($columns)</code>: 选择特定字段</li>
+            <li><code>count()</code>: 获取记录数量</li>
+            <li><code>max($column)</code>: 获取最大值</li>
+            <li><code>min($column)</code>: 获取最小值</li>
+            <li><code>avg($column)</code>: 获取平均值</li>
+            <li><code>sum($column)</code>: 获取总和</li>
+        </ul>
+
+        <h3>关系方法</h3>
+        <ul>
+            <li><code>hasOne($related, $foreignKey, $localKey)</code>: 一对一关系</li>
+            <li><code>hasMany($related, $foreignKey, $localKey)</code>: 一对多关系</li>
+            <li><code>belongsTo($related, $foreignKey, $ownerKey)</code>: 属于关系</li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>SimpleORM - 一个轻量级的PHP ORM框架</p>
+        <p>适用于MySQL 5.5+ | PHP 8.0+</p>
+    </footer>
+</body>
+</html>

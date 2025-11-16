@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使用指南 - SimpleORM</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+        .nav {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .nav a {
+            margin-right: 1rem;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .card h2 {
+            color: #667eea;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+        .card h3 {
+            color: #764ba2;
+        }
+        pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', monospace;
+            background: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+        .example {
+            border-left: 4px solid #667eea;
+            padding-left: 1rem;
+            margin: 1rem 0;
+        }
+        .tip {
+            background: #e6fffa;
+            border-left: 4px solid #00b894;
+            padding: 1rem;
+            border-radius: 0 5px 5px 0;
+            margin: 1rem 0;
+        }
+        .warning {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 1rem;
+            border-radius: 0 5px 5px 0;
+            margin: 1rem 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background: #f8f9fa;
+        }
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SimpleORM 使用指南</h1>
+        <div class="subtitle">详细的功能说明和使用示例</div>
+    </header>
+
+    <div class="nav">
+        <a href="index.html">首页</a>
+        <a href="#installation">安装配置</a>
+        <a href="#models">模型定义</a>
+        <a href="#crud">CRUD操作</a>
+        <a href="#query">查询构建器</a>
+        <a href="#relations">关系映射</a>
+        <a href="#migrations">数据库迁移</a>
+    </div>
+
+    <div class="card">
+        <h2 id="installation">安装与配置</h2>
+        
+        <h3>系统要求</h3>
+        <ul>
+            <li>PHP 8.0 或更高版本</li>
+            <li>MySQL 5.5 或更高版本</li>
+            <li>Nginx 或 Apache</li>
+            <li>PDO扩展必须启用</li>
+            <li>Composer（推荐使用）</li>
+        </ul>
+
+        <h3>安装方法</h3>
+        <div class="example">
+            <p><strong>方法一：使用Composer安装</strong></p>
+            <pre>composer require simple-orm/simple-orm</pre>
+            
+            <p><strong>方法二：手动克隆项目</strong></p>
+            <pre>git clone &lt;repository-url&gt;
+cd simple-orm
+composer install</pre>
+        </div>
+        
+        <h3>Nginx配置</h3>
+        <p>如果您使用Nginx作为Web服务器，请添加以下配置：</p>
+        <div class="example">
+            <pre>server {
+    listen 80;
+    server_name your-domain.com;
+    root /path/to/your/project/public;
+    index index.php index.html;
+    
+    location / {
+        try_files \$uri \$uri/ /index.php\$query_string;
+    }
+    
+    location ~ \.php\$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php8.0-fpm.sock; # 根据您的PHP-FPM配置调整
+    }
+}</pre>
+        </div>
+        
+        <div class="tip">
+            <p><strong>提示：</strong>确保将 <code>/path/to/your/project/public</code> 替换为实际的项目路径，并根据您的PHP-FPM配置调整 <code>fastcgi_pass</code> 的值。</p>
+        </div>
+
+        <h3>基本配置</h3>
+        <div class="example">
+            <pre>&lt;?php
+// 引入自动加载文件
+require_once 'vendor/autoload.php';
+
+use SimpleORM\Database\DatabaseManager;
+
+// 数据库配置
+$config = [
+    'default' => 'mysql',
+    'connections' => [
+        'mysql' => [
+            'host' => 'localhost',
+            'database' => 'your_database',
+            'username' => 'your_username',
+            'password' => 'your_password',
+            'charset' => 'utf8mb4',
+        ]
+    ]
+];
+
+// 创建数据库管理器实例
+$dbManager = new DatabaseManager($config);</pre>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 id="models">模型定义</h2>
+        
+        <h3>创建模型类</h3>
+        <p>所有模型都应继承自 <code>SimpleORM\Model\Model</code> 基类：</p>
+        <div class="example">
+            <pre>&lt;?php
+use SimpleORM\Model\Model;
+
+class User extends Model
+{
+    // 指定表名（可选，默认为类名的复数形式）
+    protected string $table = 'users';
+    
+    // 是否自动维护时间戳（默认为true）
+    protected bool $timestamps = true;
+    
+    // 自定义主键字段名（默认为'id'）
+    protected string $primaryKey = 'id';
+    
+    // 创建时间字段名（默认为'created_at'）
+    protected string $createdAtColumn = 'created_at';
+    
+    // 更新时间字段名（默认为'updated_at'）
+    protected string $updatedAtColumn = 'updated_at';
+}</pre>
+        </div>
+
+        <h3>设置数据库管理器</h3>
+        <p>每个模型都需要设置数据库管理器：</p>
+        <div class="example">
+            <pre>// 为模型设置数据库管理器
+User::setDatabaseManager($dbManager);
+
+// 现在可以使用模型了
+$user = User::find(1);</pre>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 id="crud">CRUD操作</h2>
+        
+        <h3>创建记录</h3>
+        <div class="example">
+            <pre>// 方法一：使用create静态方法
+$user = User::create([
+    'name' => '张三',
+    'email' => 'zhangsan@example.com',
+    'password' => password_hash('123456', PASSWORD_DEFAULT)
+]);
+
+// 方法二：创建实例并保存
+$user = new User();
+$user->name = '李四';
+$user->email = 'lisi@example.com';
+$user->password = password_hash('123456', PASSWORD_DEFAULT);
+$user->save();</pre>
+        </div>
+
+        <h3>读取记录</h3>
+        <div class="example">
+            <pre>// 根据主键查找单条记录
+$user = User::find(1);
+
+// 获取所有记录
+$users = User::all();
+
+// 检查记录是否存在
+$exists = User::query()->where('email', 'zhangsan@example.com')->exists();
+
+// 获取第一条记录
+$user = User::query()->where('active', 1)->first();</pre>
+        </div>
+
+        <h3>更新记录</h3>
+        <div class="example">
+            <pre>// 查找并更新
+$user = User::find(1);
+$user->name = '王五';
+$user->save();
+
+// 批量更新
+$affected = User::query()
+    ->where('active', 1)
+    ->update(['last_login' => date('Y-m-d H:i:s')]);</pre>
+        </div>
+
+        <h3>删除记录</h3>
+        <div class="example">
+            <pre>// 删除单条记录
+$user = User::find(1);
+$user->delete();
+
+// 根据条件删除
+$affected = User::query()
+    ->where('active', 0)
+    ->delete();</pre>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 id="query">查询构建器</h2>
+        
+        <h3>基本查询</h3>
+        <div class="example">
+            <pre>// 简单查询
+$users = User::query()->get();
+
+// 条件查询
+$users = User::query()
+    ->where('age', '>', 18)
+    ->where('active', 1)
+    ->get();
+
+// 或条件查询
+$users = User::query()
+    ->where('age', '>', 18)
+    ->orWhere('vip', 1)
+    ->get();</pre>
+        </div>
+
+        <h3>排序和限制</h3>
+        <div class="example">
+            <pre>// 排序
+$users = User::query()
+    ->orderBy('created_at', 'desc')
+    ->orderBy('name', 'asc')
+    ->get();
+
+// 限制结果数量
+$users = User::query()->limit(10)->get();
+
+// 分页查询
+$users = User::query()
+    ->limit(10)
+    ->offset(20)
+    ->get();</pre>
+        </div>
+
+        <h3>聚合查询</h3>
+        <div class="example">
+            <pre>// 统计记录数
+$count = User::query()->count();
+
+// 最大值
+$maxAge = User::query()->max('age');
+
+// 最小值
+$minAge = User::query()->min('age');
+
+// 平均值
+$avgAge = User::query()->avg('age');
+
+// 总和
+$totalScore = User::query()->sum('score');</pre>
+        </div>
+
+        <h3>选择字段</h3>
+        <div class="example">
+            <pre>// 选择特定字段
+$users = User::query()
+    ->select(['id', 'name', 'email'])
+    ->get();
+
+// 字段别名
+$users = User::query()
+    ->select(['id', 'name as username'])
+    ->get();</pre>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 id="relations">关系映射</h2>
+        
+        <h3>一对一关系</h3>
+        <div class="example">
+            <pre>// User模型
+class User extends Model
+{
+    public function profile()
+    {
+        return $this->hasOne(Profile::class, 'user_id', 'id');
+    }
+}
+
+// Profile模型
+class Profile extends Model
+{
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+}
+
+// 使用关系
+$user = User::find(1);
+echo $user->profile->bio;
+
+$profile = Profile::find(1);
+echo $profile->user->name;</pre>
+        </div>
+
+        <h3>一对多关系</h3>
+        <div class="example">
+            <pre>// User模型
+class User extends Model
+{
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'user_id', 'id');
+    }
+}
+
+// Post模型
+class Post extends Model
+{
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+}
+
+// 使用关系
+$user = User::find(1);
+foreach ($user->posts as $post) {
+    echo $post->title;
+}
+
+$post = Post::find(1);
+echo $post->user->name;</pre>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 id="migrations">数据库迁移</h2>
+        
+        <h3>创建迁移文件</h3>
+        <p>迁移文件应放在 <code>migrations</code> 目录下，文件名格式为 <code>YYYY_MM_DD_HHMMSS_description.php</code>：</p>
+        <div class="example">
+            <pre>&lt;?php
+use SimpleORM\Migration\Migration;
+use SimpleORM\Database\Connection;
+
+class CreateUsersTable extends Migration
+{
+    public function up(Connection $connection): void
+    {
+        $this->create($connection, 'users', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
+
+    public function down(Connection $connection): void
+    {
+        $this->drop($connection, 'users');
+    }
+}</pre>
+        </div>
+
+        <h3>运行迁移</h3>
+        <div class="example">
+            <pre>use SimpleORM\Migration\Migrator;
+
+// 创建迁移器
+$migrator = new Migrator($dbManager);
+
+// 运行所有未执行的迁移
+$migrator->run(__DIR__ . '/migrations');
+
+// 回滚最后一次迁移
+$migrator->rollback(__DIR__ . '/migrations');</pre>
+        </div>
+
+        <h3>表结构定义方法</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>方法</th>
+                    <th>说明</th>
+                    <th>示例</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>increments('id')</code></td>
+                    <td>自增主键</td>
+                    <td><code>$table->increments('id')</code></td>
+                </tr>
+                <tr>
+                    <td><code>string('name', 255)</code></td>
+                    <td>字符串字段</td>
+                    <td><code>$table->string('name', 100)</code></td>
+                </tr>
+                <tr>
+                    <td><code>text('content')</code></td>
+                    <td>文本字段</td>
+                    <td><code>$table->text('content')</code></td>
+                </tr>
+                <tr>
+                    <td><code>integer('age')</code></td>
+                    <td>整数字段</td>
+                    <td><code>$table->integer('age')</code></td>
+                </tr>
+                <tr>
+                    <td><code>timestamp('created_at')</code></td>
+                    <td>时间戳字段</td>
+                    <td><code>$table->timestamp('created_at')</code></td>
+                </tr>
+                <tr>
+                    <td><code>nullable()</code></td>
+                    <td>允许为空</td>
+                    <td><code>$table->string('email')->nullable()</code></td>
+                </tr>
+                <tr>
+                    <td><code>unique()</code></td>
+                    <td>唯一约束</td>
+                    <td><code>$table->string('email')->unique()</code></td>
+                </tr>
+                <tr>
+                    <td><code>default($value)</code></td>
+                    <td>默认值</td>
+                    <td><code>$table->integer('status')->default(1)</code></td>
+                </tr>
+                <tr>
+                    <td><code>timestamps()</code></td>
+                    <td>添加时间戳字段</td>
+                    <td><code>$table->timestamps()</code></td>
+                </tr>
+                <tr>
+                    <td><code>softDeletes()</code></td>
+                    <td>添加软删除字段</td>
+                    <td><code>$table->softDeletes()</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>最佳实践</h2>
+        
+        <h3>模型设计</h3>
+        <div class="tip">
+            <p><strong>提示：</strong>为每个表创建对应的模型类，并在模型中定义清楚的属性和关系。</p>
+        </div>
+
+        <h3>查询优化</h3>
+        <div class="tip">
+            <p><strong>提示：</strong>使用预加载避免N+1查询问题：</p>
+            <pre>// 避免N+1查询
+$posts = Post::query()->with('user')->get();
+foreach ($posts as $post) {
+    echo $post->user->name; // 不会产生额外查询
+}</pre>
+        </div>
+
+        <h3>安全性</h3>
+        <div class="warning">
+            <p><strong>警告：</strong>始终验证和过滤用户输入，使用参数化查询防止SQL注入。</p>
+        </div>
+    </div>
+</body>
+</html>
