@@ -16,6 +16,10 @@
 - MySQL 5.5+
 - PDO扩展
 
+## 示例项目
+- [class_roster](class_roster/README.md)
+
+
 ## 安装
 
 ```bash
